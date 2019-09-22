@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
       printf("Source ip is %d.%d.%d.%d and destination ip is %d.%d.%d.%d\n", ip1[0], ip1[1], ip1[2], ip1[3], ip2[0], ip2[1], ip2[2], ip2[3]);
     
 
-      //print tcp port;
+      //print tcp port.
       unsigned char is_tcp[1];
       unsigned char tcp_check[1] = {0x06};
 
@@ -67,22 +67,26 @@ int main(int argc, char* argv[]) {
         memcpy(port2, packet+36, 2);
         uint16_t* dest_port = (uint16_t*) port2;
         printf("Source port is %d and destination port is %d", ntohs(*src_port), ntohs(*dest_port));    //network order to host order.
-        
+
+
+        //print real data.
         int ip_header = (int)(packet[14] & 0x0f) * 5;
         int tcp_header = (int)((packet[14 + ip_header + 12] & 0xf0) >> 4) * 5;
-        int header_length = 14 + ip_header + tcp_header;
-        unsigned char data[32];
-        memcpy(data, packet+header_length, 32);
-        for(int i = 0; i < 32; i++) {
-          if(i == 0)
-            printf("\nThe data from the first 32 bytes is %x", data[i]);
-          else
-            printf("%x", data[i]);
+        if(header->len > tcp_header + 32) {
+          int header_length = 14 + ip_header + tcp_header;
+          unsigned char data[32];
+          memcpy(data, packet+header_length, 32);
+          for(int i = 0; i < 32; i++) {
+            if(i == 0)
+              printf("\nThe data from the first 32 bytes is %x", data[i]);
+            else
+              printf("%x", data[i]);
+          }
         }
         printf("\n");
       }
     }
-    printf("=============================================================\n");
+    printf("=============================================================================\n");
   }
   
   pcap_close(handle);
